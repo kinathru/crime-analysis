@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Entity
@@ -167,5 +169,15 @@ public class ComplainObject
     public void setyCord( double yCord )
     {
         this.yCord = yCord;
+    }
+
+    public LocalDateTime _getLocalCmpFromTime()
+    {
+        return LocalDateTime.ofInstant( complainFromTime.toInstant(), ZoneId.systemDefault() );
+    }
+
+    public LocalDateTime _getLocalCmpToTime()
+    {
+        return LocalDateTime.ofInstant( complainToTime.toInstant(), ZoneId.systemDefault() );
     }
 }

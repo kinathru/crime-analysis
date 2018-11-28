@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Entity
@@ -96,5 +98,15 @@ public class TaxiDataObject
     public void setDropoffLon( double dropoffLon )
     {
         this.dropoffLon = dropoffLon;
+    }
+
+    public LocalDateTime _getLocalPickupTime()
+    {
+        return LocalDateTime.ofInstant( pickupTime.toInstant(), ZoneId.systemDefault() );
+    }
+
+    public LocalDateTime _getLocalDropOffTime()
+    {
+        return LocalDateTime.ofInstant( dropOffTime.toInstant(), ZoneId.systemDefault() );
     }
 }
