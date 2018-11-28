@@ -1,5 +1,7 @@
 package com.kinath.mis;
 
+import com.kinath.mis.geo.Address;
+import com.kinath.mis.geo.NominatimReverseGeocodingJAPI;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -78,6 +80,13 @@ public class ObjectMapper
             taxiData.setPickupLon( pickupLonCell.getNumericCellValue() );
             taxiData.setDropoffLat( dropLatCell.getNumericCellValue() );
             taxiData.setDropoffLon( dropLonCell.getNumericCellValue() );
+
+            NominatimReverseGeocodingJAPI nominatim1 = new NominatimReverseGeocodingJAPI(); //create instance with default zoom level (18)
+            Address pickupAddr = nominatim1.getAdress( taxiData.getPickupLat(), taxiData.getPickupLon() );//returns Address object for the given position
+            taxiData.setPickupCity( pickupAddr.getCity() );
+
+            Address dropOffAddr = nominatim1.getAdress( taxiData.getDropoffLat(), taxiData.getDropoffLon() );//returns Address object for the given position
+            taxiData.setDropOffCity( dropOffAddr.getCity() );
         }
         catch( Exception ex )
         {

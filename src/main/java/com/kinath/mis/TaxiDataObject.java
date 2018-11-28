@@ -36,6 +36,9 @@ public class TaxiDataObject
     private double dropoffLat;
     private double dropoffLon;
 
+    private String pickupCity;
+    private String dropOffCity;
+
     public TaxiDataObject()
     {
     }
@@ -98,6 +101,26 @@ public class TaxiDataObject
     public void setDropoffLon( double dropoffLon )
     {
         this.dropoffLon = dropoffLon;
+    }
+
+    public String getPickupCity()
+    {
+        return pickupCity;
+    }
+
+    public void setPickupCity( String pickupCity )
+    {
+        this.pickupCity = pickupCity;
+    }
+
+    public String getDropOffCity()
+    {
+        return dropOffCity;
+    }
+
+    public void setDropOffCity( String dropOffCity )
+    {
+        this.dropOffCity = dropOffCity;
     }
 
     public LocalDateTime _getLocalPickupTime()
