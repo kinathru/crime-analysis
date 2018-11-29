@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +53,7 @@ public class GeoCodeStorageUtil
 
     private static void printIndividualRecords( List<GeoInformation> geoInformationList ) throws IOException
     {
-        BufferedWriter writer = Files.newBufferedWriter( Paths.get( GEO_STORAGE_FILE ) );
+        BufferedWriter writer = Files.newBufferedWriter( Paths.get( GEO_STORAGE_FILE ), StandardOpenOption.APPEND );
         CSVPrinter csvPrinter = new CSVPrinter( writer, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ) );
         try
         {
@@ -88,23 +89,30 @@ public class GeoCodeStorageUtil
         {
             for( CSVRecord csvRecord : csvParser )
             {
-                // Accessing values by the names assigned to each column
-                double lat = Double.parseDouble( csvRecord.get( "LAT" ) );
-                double lon = Double.parseDouble( csvRecord.get( "LON" ) );
-                String countryCode = csvRecord.get( "CountryCode" );
-                String country = csvRecord.get( "Country" );
-                String state = csvRecord.get( "State" );
-                String city = csvRecord.get( "City" );
-                String displayName = csvRecord.get( "DisplayName" );
+                try
+                {
+                    // Accessing values by the names assigned to each column
+                    double lat = Double.parseDouble( csvRecord.get( "LAT" ) );
+                    double lon = Double.parseDouble( csvRecord.get( "LON" ) );
+                    String countryCode = csvRecord.get( "CountryCode" );
+                    String country = csvRecord.get( "Country" );
+                    String state = csvRecord.get( "State" );
+                    String city = csvRecord.get( "City" );
+                    String displayName = csvRecord.get( "DisplayName" );
 
-                GeoInformation geoInformation = new GeoInformation( lat, lon );
-                geoInformation.setCountryCode( countryCode );
-                geoInformation.setCountry( country );
-                geoInformation.setState( state );
-                geoInformation.setCity( city );
-                geoInformation.setDisplayName( displayName );
+                    GeoInformation geoInformation = new GeoInformation( lat, lon );
+                    geoInformation.setCountryCode( countryCode );
+                    geoInformation.setCountry( country );
+                    geoInformation.setState( state );
+                    geoInformation.setCity( city );
+                    geoInformation.setDisplayName( displayName );
 
-                geoInformationList.add( geoInformation );
+                    geoInformationList.add( geoInformation );
+                }
+                catch( NumberFormatException nex )
+                {
+                    System.out.println( nex.getMessage() );
+                }
             }
         }
         catch( IOException e )
