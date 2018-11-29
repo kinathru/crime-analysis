@@ -47,6 +47,7 @@ public class GeoCodeStorageUtil
 
         List<GeoInformation> geoInformationList = readGeoInformationFromFile();
         addNewGeoInfoFromData( complainList, taxiDataList, geoInformationList );
+        System.out.println( "Size of Pending Entries : " + geoInformationList.size() );
 
         printIndividualRecords( geoInformationList );
     }
@@ -54,7 +55,7 @@ public class GeoCodeStorageUtil
     private static void printIndividualRecords( List<GeoInformation> geoInformationList ) throws IOException
     {
         BufferedWriter writer = Files.newBufferedWriter( Paths.get( GEO_STORAGE_FILE ), StandardOpenOption.APPEND );
-        CSVPrinter csvPrinter = new CSVPrinter( writer, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ) );
+        CSVPrinter csvPrinter = new CSVPrinter( writer, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ).withFirstRecordAsHeader() );
         try
         {
             for( GeoInformation geoInformation : geoInformationList )

@@ -1691,7 +1691,6 @@ LAT,LON,CountryCode,Country,State,City,DisplayName
 40.87314769,-73.9057147,us,USA,New York,NYC,"2800, Bailey Avenue, Kingsbridge, The Bronx, Bronx County, NYC, New York, 10463, USA"
 40.63798142,-73.93954141,us,USA,New York,NYC,"779, East 39th Street, Brooklyn Community Board 17 Neighborhoods, BK, Kings County, NYC, New York, 11210, USA"
 40.86405578,-73.92631701,us,USA,New York,NYC,"175, Dyckman Street, Fort George, Manhattan, Manhattan Community Board 12, New York County, NYC, New York, 10034, USA"
-LAT,LON,CountryCode,Country,State,City,DisplayName
 40.64067653,-73.93404401,us,USA,New York,NYC,"840, East 45th Street, Brooklyn Community Board 17 Neighborhoods, BK, Kings County, NYC, New York, 11203, USA"
 40.85290843,-73.90934006,us,USA,New York,NYC,"2005, Davidson Avenue, University Heights, The Bronx, Bronx County, NYC, New York, 10453, USA"
 40.62344118,-74.14472455,us,USA,New York,NYC,"27, Gloria Court, Graniteville, Staten Island, Richmond County, NYC, New York, 10302, USA"
@@ -2936,5 +2935,3 @@ LAT,LON,CountryCode,Country,State,City,DisplayName
 40.83899828,-73.93851306,us,USA,New York,NYC,"503, West 166th Street, Washington Heights, Manhattan, Manhattan Community Board 12, New York County, NYC, New York, 10032, USA"
 40.61057336,-73.93225493,us,USA,New York,NYC,"1941, East 36th Street, Flatlands, BK, Kings County, NYC, New York, 11234, USA"
 40.74914208,-73.8629742,us,USA,New York,NYC,"40-14, National Street, Corona, Queens County, NYC, New York, 11368, USA"
-LAT,LON,CountryCode,Country,State,City,DisplayName
-LAT,LON,CountryCode,Country,State,City,DisplayName
