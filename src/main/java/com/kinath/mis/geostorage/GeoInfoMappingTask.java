@@ -31,10 +31,7 @@ public class GeoInfoMappingTask implements Callable<Boolean>
         geoInformation.setState( address.getState() );
         geoInformation.setCity( address.getCity() );
         geoInformation.setDisplayName( address.getDisplayName() );
-
         System.out.println( geoInformation.toString() );
-
-        Thread.sleep( 1000 );
 
         return geoInformation.getCity() != null;
     }
