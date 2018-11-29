@@ -132,4 +132,10 @@ public class TaxiDataObject
     {
         return LocalDateTime.ofInstant( dropOffTime.toInstant(), ZoneId.systemDefault() );
     }
+
+    @Override
+    public String toString()
+    {
+        return "TaxiDataObject{" + "taxiDataId=" + taxiDataId + ", pickupTime=" + pickupTime + ", dropOffTime=" + dropOffTime + ", pickupLat=" + pickupLat + ", pickupLon=" + pickupLon + ", dropoffLat=" + dropoffLat + ", dropoffLon=" + dropoffLon + ", pickupCity='" + pickupCity + '\'' + ", dropOffCity='" + dropOffCity + '\'' + '}';
+    }
 }

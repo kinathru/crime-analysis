@@ -6,14 +6,16 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.kinath.mis.Constants.*;
@@ -64,5 +66,31 @@ public class AnalyzeUtil
 
         System.out.println( "Within : " + complaintsWithinTime.size() + " - Within 30" + complaintsWithinTimePlus30.size() + " - Within 1h" + complaintsWithinTimePlus1h.size() );
 
+    }
+
+    private static void mapCitiesParallel( List<TaxiDataObject> taxiDataList )
+    {
+        ExecutorService executor = Executors.newFixedThreadPool( 20 );
+        List<CityMappingTask> cityMappingTasks = taxiDataList.stream().map( taxi -> new CityMappingTask( taxi ) ).collect( Collectors.toList() );
+        try
+        {
+            executor.invokeAll( cityMappingTasks ).stream().map( future -> {
+                try
+                {
+                    return future.get();
+                }
+                catch( Exception e )
+                {
+                    throw new IllegalStateException( e );
+                }
+            } ).forEach( System.out::println );
+        }
+        catch( InterruptedException e )
+        {
+            e.printStackTrace();
+        }
+
+        long mappedCount = taxiDataList.stream().filter( taxi -> taxi.getPickupCity() != null && taxi.getDropOffCity() != null ).count();
+        System.out.println( "Objects mapped with cities : " + mappedCount );
     }
 }

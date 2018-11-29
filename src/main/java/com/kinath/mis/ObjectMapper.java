@@ -63,7 +63,7 @@ public class ObjectMapper
         }
     }
 
-    public static void mapTaxiDataObject(TaxiDataObject taxiData, Row row) throws MappingException
+    public static void mapTaxiDataObject( TaxiDataObject taxiData, Row row ) throws MappingException
     {
         try
         {
@@ -80,17 +80,22 @@ public class ObjectMapper
             taxiData.setPickupLon( pickupLonCell.getNumericCellValue() );
             taxiData.setDropoffLat( dropLatCell.getNumericCellValue() );
             taxiData.setDropoffLon( dropLonCell.getNumericCellValue() );
-
-            NominatimReverseGeocodingJAPI nominatim1 = new NominatimReverseGeocodingJAPI(); //create instance with default zoom level (18)
-            Address pickupAddr = nominatim1.getAdress( taxiData.getPickupLat(), taxiData.getPickupLon() );//returns Address object for the given position
-            taxiData.setPickupCity( pickupAddr.getCity() );
-
-            Address dropOffAddr = nominatim1.getAdress( taxiData.getDropoffLat(), taxiData.getDropoffLon() );//returns Address object for the given position
-            taxiData.setDropOffCity( dropOffAddr.getCity() );
         }
         catch( Exception ex )
         {
             throw new MappingException( ex.getMessage() );
         }
+    }
+
+    public static void mapCitiesToTaxiData( TaxiDataObject taxiData )
+    {
+        NominatimReverseGeocodingJAPI nominatim1 = new NominatimReverseGeocodingJAPI(); //create instance with default zoom level (18)
+        Address pickupAddr = nominatim1.getAdress( taxiData.getPickupLat(), taxiData.getPickupLon() );//returns Address object for the given position
+        taxiData.setPickupCity( pickupAddr.getCity() );
+
+        Address dropOffAddr = nominatim1.getAdress( taxiData.getDropoffLat(), taxiData.getDropoffLon() );//returns Address object for the given position
+        taxiData.setDropOffCity( dropOffAddr.getCity() );
+
+        System.out.println( taxiData.toString() );
     }
 }

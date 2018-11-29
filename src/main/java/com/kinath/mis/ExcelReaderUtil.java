@@ -23,6 +23,7 @@ public class ExcelReaderUtil
             {
                 ObjectMapper.mapTaxiDataObject( taxiData, taxiDataow );
                 taxiDataList.add( taxiData );
+                System.out.println( taxiData.toString() );
             }
             catch( MappingException e )
             {
