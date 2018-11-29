@@ -3,6 +3,10 @@ package com.kinath.mis.geostorage;
 import com.kinath.mis.ComplainObject;
 import com.kinath.mis.ExcelReaderUtil;
 import com.kinath.mis.TaxiDataObject;
+import com.kinath.mis.geo.Address;
+import com.kinath.mis.geo.NominatimReverseGeocodingJAPI;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -12,11 +16,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static com.kinath.mis.Constants.*;
 
@@ -35,20 +39,114 @@ public class GeoCodeStorageUtil
         List<TaxiDataObject> taxiDataList = ExcelReaderUtil.getTaxiDataObjects( taxiDataSheet );
         System.out.println( taxiDataList.size() );
 
-        try (
-                BufferedWriter writer = Files.newBufferedWriter(Paths.get(SAMPLE_CSV_FILE));
+        List<GeoInformation> geoInformationList = getDistinctGeoInfo( complainList, taxiDataList );
 
-                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                        .withHeader("ID", "Name", "Designation", "Company"));
-        ) {
-            csvPrinter.printRecord("1", "Sundar Pichai ♥", "CEO", "Google");
-            csvPrinter.printRecord("2", "Satya Nadella", "CEO", "Microsoft");
-            csvPrinter.printRecord("3", "Tim cook", "CEO", "Apple");
+        BufferedWriter writer = Files.newBufferedWriter( Paths.get( "GeoInformation.csv" ) );
+        CSVPrinter csvPrinter = new CSVPrinter( writer, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ) );
+        try
+        {
+            for( GeoInformation geoInformation : geoInformationList )
+            {
+                NominatimReverseGeocodingJAPI nominatim1 = new NominatimReverseGeocodingJAPI();
+                Address address = nominatim1.getAdress( geoInformation.getLatitude(), geoInformation.getLongitude() );
+                geoInformation.setCountryCode( address.getCountryCode() );
+                geoInformation.setCountry( address.getCountry() );
+                geoInformation.setState( address.getState() );
+                geoInformation.setCity( address.getCity() );
+                geoInformation.setDisplayName( address.getDisplayName() );
 
-            csvPrinter.printRecord(Arrays.asList("4", "Mark Zuckerberg", "CEO", "Facebook"));
+                System.out.println( geoInformation.toString() );
 
+                try
+                {
+                    Thread.sleep( 1000 );
+                }
+                catch( InterruptedException e )
+                {
+                    e.printStackTrace();
+                }
+                csvPrinter.printRecord( geoInformation.getLatitude(), geoInformation.getLongitude(), geoInformation.getCountryCode(), geoInformation.getCountry(), geoInformation.getState(), geoInformation.getCity(), geoInformation.getDisplayName() );
+            }
+        }
+        catch( Exception ex )
+        {
+            System.out.println( ex.getMessage() );
+        }
+        finally
+        {
             csvPrinter.flush();
         }
+    }
 
+    private static List<GeoInformation> getDistinctGeoInfo( List<ComplainObject> complainList, List<TaxiDataObject> taxiDataList )
+    {
+        List<GeoInformation> geoInformationList = new ArrayList<>();
+        for( ComplainObject cmp : complainList )
+        {
+            GeoInformation geoInformation = new GeoInformation( cmp.getLat(), cmp.getLon() );
+            if( !geoInformationList.stream().anyMatch( gi -> gi.equals( geoInformation ) ) )
+            {
+                geoInformationList.add( geoInformation );
+            }
+        }
+
+        for( TaxiDataObject taxi : taxiDataList )
+        {
+            GeoInformation pickupGeo = new GeoInformation( taxi.getPickupLat(), taxi.getPickupLon() );
+            if( !geoInformationList.stream().anyMatch( gi -> gi.equals( pickupGeo ) ) )
+            {
+                geoInformationList.add( pickupGeo );
+            }
+
+            GeoInformation dropOffGeo = new GeoInformation( taxi.getDropoffLat(), taxi.getDropoffLon() );
+            if( !geoInformationList.stream().anyMatch( gi -> gi.equals( dropOffGeo ) ) )
+            {
+                geoInformationList.add( dropOffGeo );
+            }
+        }
+        return geoInformationList;
+    }
+
+    private static void mapGeoInformationParallel( List<GeoInformation> geoInformationList )
+    {
+        ExecutorService executor = Executors.newFixedThreadPool( 1 );
+        List<GeoInfoMappingTask> addressMappingTasks = geoInformationList.stream().map( geo -> new GeoInfoMappingTask( geo ) ).collect( Collectors.toList() );
+        try
+        {
+            executor.invokeAll( addressMappingTasks ).stream().map( future -> {
+                try
+                {
+                    return future.get();
+                }
+                catch( Exception e )
+                {
+                    executor.shutdownNow();
+                    throw new IllegalStateException( e );
+                }
+            } ).forEach( System.out::println );
+        }
+        catch( InterruptedException e )
+        {
+            System.out.println( e.getMessage() );
+        }
+
+        long mappedCount = geoInformationList.stream().filter( taxi -> taxi.getCity() != null && taxi.getCity() != null ).count();
+        System.out.println( "Objects mapped with cities : " + mappedCount );
+    }
+
+    public static void main( String[] args )
+    {
+        try
+        {
+            storeGeoCordinatesToAddresses();
+        }
+        catch( IOException e )
+        {
+            e.printStackTrace();
+        }
+        catch( InvalidFormatException e )
+        {
+            e.printStackTrace();
+        }
     }
 }
