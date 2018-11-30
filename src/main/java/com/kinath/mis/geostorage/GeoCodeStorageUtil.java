@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -50,16 +51,16 @@ public class GeoCodeStorageUtil
         while( pendingEntrySize > 0 )
         {
             List<GeoInformation> existingGeoInfoList = readGeoInformationFromFile();
-            System.out.println( "Existing Geo Info List Size : " + existingGeoInfoList.size() );
+            System.out.println( LocalDateTime.now().toString() + "\tExisting Geo Info List Size : " + existingGeoInfoList.size() );
             List<GeoInformation> newGeoInfoList = addNewGeoInfoFromData( complainList, taxiDataList, existingGeoInfoList );
-            System.out.println( "Size of Pending Entries : " + newGeoInfoList.size() );
+            System.out.println( LocalDateTime.now().toString() + "\tSize of Pending Entries : " + newGeoInfoList.size() );
             pendingEntrySize = newGeoInfoList.size();
             printIndividualRecords( newGeoInfoList );
 
             try
             {
-                System.out.println("Waiting for 5 minutes....");
-                Thread.sleep( 1000*60*5 );
+                System.out.println( LocalDateTime.now().toString() + "\tWaiting for 5 minutes...." );
+                Thread.sleep( 1000 * 60 * 5 );
             }
             catch( InterruptedException e )
             {
@@ -104,8 +105,7 @@ public class GeoCodeStorageUtil
     public static List<GeoInformation> readGeoInformationFromFile()
     {
         List<GeoInformation> geoInformationList = new ArrayList<>();
-        try (Reader reader = Files.newBufferedReader( Paths.get( GEO_STORAGE_FILE ) );
-             CSVParser csvParser = new CSVParser( reader, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ).withFirstRecordAsHeader().withTrim() );)
+        try (Reader reader = Files.newBufferedReader( Paths.get( GEO_STORAGE_FILE ) ); CSVParser csvParser = new CSVParser( reader, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ).withFirstRecordAsHeader().withTrim() );)
         {
             for( CSVRecord csvRecord : csvParser )
             {
