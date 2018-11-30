@@ -88,6 +88,14 @@ public class GeoCodeStorageUtil
         {
             csvPrinter.flush();
             System.out.println( " Printed Records : " + processedCount );
+            try
+            {
+                Thread.sleep( 1000*60*5 );
+            }
+            catch( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
         }
     }
 
