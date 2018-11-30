@@ -55,6 +55,16 @@ public class GeoCodeStorageUtil
             System.out.println( "Size of Pending Entries : " + newGeoInfoList.size() );
             pendingEntrySize = newGeoInfoList.size();
             printIndividualRecords( newGeoInfoList );
+
+            try
+            {
+                System.out.println("Waiting for 5 minutes....");
+                Thread.sleep( 1000*60*5 );
+            }
+            catch( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -88,14 +98,6 @@ public class GeoCodeStorageUtil
         {
             csvPrinter.flush();
             System.out.println( " Printed Records : " + processedCount );
-            try
-            {
-                Thread.sleep( 1000*60*5 );
-            }
-            catch( InterruptedException e )
-            {
-                e.printStackTrace();
-            }
         }
     }
 
