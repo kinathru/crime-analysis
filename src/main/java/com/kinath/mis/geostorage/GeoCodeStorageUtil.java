@@ -45,15 +45,22 @@ public class GeoCodeStorageUtil
         List<TaxiDataObject> taxiDataList = ExcelReaderUtil.getTaxiDataObjects( taxiDataSheet );
         System.out.println( taxiDataList.size() );
 
-        List<GeoInformation> geoInformationList = readGeoInformationFromFile();
-        addNewGeoInfoFromData( complainList, taxiDataList, geoInformationList );
-        System.out.println( "Size of Pending Entries : " + geoInformationList.size() );
+        int pendingEntrySize = Integer.MAX_VALUE;
 
-        printIndividualRecords( geoInformationList );
+        while( pendingEntrySize > 0 )
+        {
+            List<GeoInformation> existingGeoInfoList = readGeoInformationFromFile();
+            System.out.println( "Existing Geo Info List Size : " + existingGeoInfoList.size() );
+            List<GeoInformation> newGeoInfoList = addNewGeoInfoFromData( complainList, taxiDataList, existingGeoInfoList );
+            System.out.println( "Size of Pending Entries : " + newGeoInfoList.size() );
+            pendingEntrySize = newGeoInfoList.size();
+            printIndividualRecords( newGeoInfoList );
+        }
     }
 
     private static void printIndividualRecords( List<GeoInformation> geoInformationList ) throws IOException
     {
+        int processedCount = 0;
         BufferedWriter writer = Files.newBufferedWriter( Paths.get( GEO_STORAGE_FILE ), StandardOpenOption.APPEND );
         CSVPrinter csvPrinter = new CSVPrinter( writer, CSVFormat.DEFAULT.withHeader( "LAT", "LON", "CountryCode", "Country", "State", "City", "DisplayName" ).withFirstRecordAsHeader() );
         try
@@ -70,6 +77,7 @@ public class GeoCodeStorageUtil
 
                 System.out.println( geoInformation.toString() );
                 csvPrinter.printRecord( geoInformation.getLatitude(), geoInformation.getLongitude(), geoInformation.getCountryCode(), geoInformation.getCountry(), geoInformation.getState(), geoInformation.getCity(), geoInformation.getDisplayName() );
+                processedCount++;
             }
         }
         catch( Exception ex )
@@ -79,6 +87,7 @@ public class GeoCodeStorageUtil
         finally
         {
             csvPrinter.flush();
+            System.out.println( " Printed Records : " + processedCount );
         }
     }
 
@@ -124,12 +133,13 @@ public class GeoCodeStorageUtil
         return geoInformationList;
     }
 
-    private static List<GeoInformation> addNewGeoInfoFromData( List<ComplainObject> complainList, List<TaxiDataObject> taxiDataList, List<GeoInformation> geoInformationList )
+    private static List<GeoInformation> addNewGeoInfoFromData( List<ComplainObject> complainList, List<TaxiDataObject> taxiDataList, List<GeoInformation> existingData )
     {
+        List<GeoInformation> geoInformationList = new ArrayList<>();
         for( ComplainObject cmp : complainList )
         {
             GeoInformation geoInformation = new GeoInformation( cmp.getLat(), cmp.getLon() );
-            if( !geoInformationList.stream().anyMatch( gi -> gi.equals( geoInformation ) ) )
+            if( !existingData.stream().anyMatch( gi -> gi.equals( geoInformation ) ) )
             {
                 geoInformationList.add( geoInformation );
             }
@@ -138,13 +148,13 @@ public class GeoCodeStorageUtil
         for( TaxiDataObject taxi : taxiDataList )
         {
             GeoInformation pickupGeo = new GeoInformation( taxi.getPickupLat(), taxi.getPickupLon() );
-            if( !geoInformationList.stream().anyMatch( gi -> gi.equals( pickupGeo ) ) )
+            if( !existingData.stream().anyMatch( gi -> gi.equals( pickupGeo ) ) )
             {
                 geoInformationList.add( pickupGeo );
             }
 
             GeoInformation dropOffGeo = new GeoInformation( taxi.getDropoffLat(), taxi.getDropoffLon() );
-            if( !geoInformationList.stream().anyMatch( gi -> gi.equals( dropOffGeo ) ) )
+            if( !existingData.stream().anyMatch( gi -> gi.equals( dropOffGeo ) ) )
             {
                 geoInformationList.add( dropOffGeo );
             }
