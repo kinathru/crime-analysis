@@ -50,6 +50,7 @@ public class GeoCodeStorageUtil
 
         while( pendingEntrySize > 0 )
         {
+            System.out.println( LocalDateTime.now().toString() + "\tReading Geo Info -> " );
             List<GeoInformation> existingGeoInfoList = readGeoInformationFromFile();
             System.out.println( LocalDateTime.now().toString() + "\tExisting Geo Info List Size : " + existingGeoInfoList.size() );
             List<GeoInformation> newGeoInfoList = addNewGeoInfoFromData( complainList, taxiDataList, existingGeoInfoList );
