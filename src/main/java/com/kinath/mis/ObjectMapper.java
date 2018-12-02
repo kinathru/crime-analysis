@@ -87,15 +87,15 @@ public class ObjectMapper
         }
     }
 
-    public static void mapCitiesToTaxiData( TaxiDataObject taxiData )
+    public static String getPostalCode(String address)
     {
-        NominatimReverseGeocodingJAPI nominatim1 = new NominatimReverseGeocodingJAPI(); //create instance with default zoom level (18)
-        Address pickupAddr = nominatim1.getAdress( taxiData.getPickupLat(), taxiData.getPickupLon() );//returns Address object for the given position
-        taxiData.setPickupCity( pickupAddr.getCity() );
-
-        Address dropOffAddr = nominatim1.getAdress( taxiData.getDropoffLat(), taxiData.getDropoffLon() );//returns Address object for the given position
-        taxiData.setDropOffCity( dropOffAddr.getCity() );
-
-        System.out.println( taxiData.toString() );
+        String[] split = address.split( "," );
+        int length = split.length;
+        String pcStr = length > 2 ? split[length - 2] : null;
+        if( pcStr != null )
+        {
+            return pcStr.trim();
+        }
+        return "";
     }
 }

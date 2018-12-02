@@ -12,6 +12,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Entity
@@ -46,6 +47,8 @@ public class ComplainObject
     private double lon;
     private double xCord;
     private double yCord;
+
+    private String address;
 
     public ComplainObject()
     {
@@ -169,6 +172,26 @@ public class ComplainObject
     public void setyCord( double yCord )
     {
         this.yCord = yCord;
+    }
+
+    public String getAddress()
+    {
+        return address;
+    }
+
+    public void setAddress( String address )
+    {
+        this.address = address;
+    }
+
+    public long getComplainDuration()
+    {
+        return _getLocalCmpFromTime().until( _getLocalCmpToTime(), ChronoUnit.DAYS );
+    }
+
+    public String getPostalCode()
+    {
+        return ObjectMapper.getPostalCode( address );
     }
 
     public LocalDateTime _getLocalCmpFromTime()

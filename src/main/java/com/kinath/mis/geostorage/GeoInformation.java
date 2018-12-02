@@ -119,4 +119,9 @@ public class GeoInformation
     {
         return "GeoInformation{" + "latitude=" + latitude + ", longitude=" + longitude + ", countryCode='" + countryCode + '\'' + ", country='" + country + '\'' + ", state='" + state + '\'' + ", city='" + city + '\'' + ", displayName='" + displayName + '\'' + '}';
     }
+
+    public String getKey()
+    {
+        return latitude + "," + longitude;
+    }
 }

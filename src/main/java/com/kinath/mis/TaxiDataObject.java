@@ -12,6 +12,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Entity
@@ -36,8 +37,8 @@ public class TaxiDataObject
     private double dropoffLat;
     private double dropoffLon;
 
-    private String pickupCity;
-    private String dropOffCity;
+    private String pickupAddress;
+    private String dropOffAddress;
 
     public TaxiDataObject()
     {
@@ -103,26 +104,6 @@ public class TaxiDataObject
         this.dropoffLon = dropoffLon;
     }
 
-    public String getPickupCity()
-    {
-        return pickupCity;
-    }
-
-    public void setPickupCity( String pickupCity )
-    {
-        this.pickupCity = pickupCity;
-    }
-
-    public String getDropOffCity()
-    {
-        return dropOffCity;
-    }
-
-    public void setDropOffCity( String dropOffCity )
-    {
-        this.dropOffCity = dropOffCity;
-    }
-
     public LocalDateTime _getLocalPickupTime()
     {
         return LocalDateTime.ofInstant( pickupTime.toInstant(), ZoneId.systemDefault() );
@@ -133,9 +114,44 @@ public class TaxiDataObject
         return LocalDateTime.ofInstant( dropOffTime.toInstant(), ZoneId.systemDefault() );
     }
 
+    public String getPickupAddress()
+    {
+        return pickupAddress;
+    }
+
+    public void setPickupAddress( String pickupAddress )
+    {
+        this.pickupAddress = pickupAddress;
+    }
+
+    public String getDropOffAddress()
+    {
+        return dropOffAddress;
+    }
+
+    public void setDropOffAddress( String dropOffAddress )
+    {
+        this.dropOffAddress = dropOffAddress;
+    }
+
+    public long getDuration()
+    {
+        return _getLocalPickupTime().until( _getLocalDropOffTime(), ChronoUnit.DAYS );
+    }
+
+    public String getPickupPostalCode()
+    {
+        return ObjectMapper.getPostalCode( pickupAddress );
+    }
+
+    public String getDropOffPostalCode()
+    {
+        return ObjectMapper.getPostalCode( dropOffAddress );
+    }
+
     @Override
     public String toString()
     {
-        return "TaxiDataObject{" + "taxiDataId=" + taxiDataId + ", pickupTime=" + pickupTime + ", dropOffTime=" + dropOffTime + ", pickupLat=" + pickupLat + ", pickupLon=" + pickupLon + ", dropoffLat=" + dropoffLat + ", dropoffLon=" + dropoffLon + ", pickupCity='" + pickupCity + '\'' + ", dropOffCity='" + dropOffCity + '\'' + '}';
+        return "TaxiDataObject{" + "taxiDataId=" + taxiDataId + ", pickupTime=" + pickupTime + ", dropOffTime=" + dropOffTime + ", pickupLat=" + pickupLat + ", pickupLon=" + pickupLon + ", dropoffLat=" + dropoffLat + ", dropoffLon=" + dropoffLon + ", pickupAddress='" + pickupAddress + '\'' + ", dropOffAddress='" + dropOffAddress + '\'' + '}';
     }
 }
