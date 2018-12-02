@@ -194,6 +194,11 @@ public class ComplainObject
         return ObjectMapper.getPostalCode( address );
     }
 
+    public String getLatLon()
+    {
+        return lat + "," + lon;
+    }
+
     public LocalDateTime _getLocalCmpFromTime()
     {
         return LocalDateTime.ofInstant( complainFromTime.toInstant(), ZoneId.systemDefault() );

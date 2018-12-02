@@ -4,18 +4,21 @@ import com.kinath.mis.geostorage.GeoInfoCache;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static com.kinath.mis.Constants.*;
@@ -24,8 +27,8 @@ public class AnalyzeUtil
 {
     public static void analyzeData() throws IOException, InvalidFormatException
     {
-        org.apache.poi.ss.usermodel.Workbook complaintsWorkbook = WorkbookFactory.create( new File( COMPLAINTS_FILE ) );
-        org.apache.poi.ss.usermodel.Workbook taxidataWorkbook = WorkbookFactory.create( new File( TAXI_DATA_FILE ) );
+        org.apache.poi.ss.usermodel.Workbook complaintsWorkbook = WorkbookFactory.create( new File( AnalyzeUtil.class.getClassLoader().getResource( COMPLAINTS_FILE ).getFile() ) );
+        org.apache.poi.ss.usermodel.Workbook taxidataWorkbook = WorkbookFactory.create( new File( AnalyzeUtil.class.getClassLoader().getResource( TAXI_DATA_FILE ).getFile() ) );
 
         GeoInfoCache geoInfoCache = GeoInfoCache.getInstance();
 
@@ -36,11 +39,8 @@ public class AnalyzeUtil
         Sheet taxiDataSheet = taxidataWorkbook.getSheet( TAXI_DATA_SHEET );
         List<TaxiDataObject> taxiDataList = ExcelReaderUtil.getTaxiDataObjects( taxiDataSheet );
         System.out.println( taxiDataList.size() );
-        TaxiDataObject maxDurationTaxiObject = taxiDataList.stream().max( Comparator.comparing( TaxiDataObject::getDuration ) ).orElse( null );
 
-        List<ComplainObject> complaintsWithinTime = new ArrayList<>();
         List<ComplainObject> complaintsWithinTimePlus30 = new ArrayList<>();
-        List<ComplainObject> complaintsWithinTimePlus1h = new ArrayList<>();
 
         for( TaxiDataObject td : taxiDataList )
         {
@@ -72,7 +72,35 @@ public class AnalyzeUtil
             }
         }
 
-        System.out.println( "Within : " + complaintsWithinTime.size() + " - Within 30" + complaintsWithinTimePlus30.size() + " - Within 1h" + complaintsWithinTimePlus1h.size() );
+        System.out.println( taxDataComplainMap.size() );
 
+        if( !taxDataComplainMap.isEmpty() )
+        {
+            Map<String, Map<String, Set<GeoInfoNameCode>>> postalCodeAddressMap = new LinkedHashMap<>();
+            Map<Integer, String> sortedPostalCodeMap = new TreeMap<>();
+            for( TaxiDataObject taxiKey : taxDataComplainMap.keySet() )
+            {
+                List<ComplainObject> complainObjects = taxDataComplainMap.get( taxiKey );
+                for( ComplainObject cmp : complainObjects )
+                {
+                    postalCodeAddressMap.computeIfAbsent( cmp.getPostalCode(), k -> new HashMap<>() );
+                    postalCodeAddressMap.get( cmp.getPostalCode() ).putIfAbsent( cmp.getOffenseCode(), new HashSet<>() );
+                    postalCodeAddressMap.get( cmp.getPostalCode() ).get( cmp.getOffenseCode() ).add( new GeoInfoNameCode( cmp.getLatLon(), cmp.getAddress() ) );
+                }
+            }
+
+            for( String pstCode : postalCodeAddressMap.keySet() )
+            {
+                sortedPostalCodeMap.put( postalCodeAddressMap.get( pstCode ).values().size(), pstCode );
+            }
+
+            try (FileWriter file = new FileWriter( Constants.JSON_RESULTS_FILE ))
+            {
+                file.write( new JSONObject( postalCodeAddressMap ).toString() );
+                System.out.println( "Successfully Copied JSON Object to File..." );
+            }
+
+            System.out.println();
+        }
     }
 }

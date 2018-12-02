@@ -122,6 +122,7 @@ public class GeoInformation
 
     public String getKey()
     {
-        return latitude + "," + longitude;
+        return latitude + "," +
+                "" + longitude;
     }
 }
