@@ -72,6 +72,11 @@ public class AnalyzeUtil
             }
         }
 
+        try (FileWriter file = new FileWriter( Constants.JSON_MAPPED_CRIMES ))
+        {
+            file.write( new JSONObject( taxDataComplainMap ).toString() );
+            System.out.println( "Successfully Copied JSON Object to File..." );
+        }
         System.out.println( taxDataComplainMap.size() );
 
         if( !taxDataComplainMap.isEmpty() )
@@ -91,7 +96,13 @@ public class AnalyzeUtil
 
             for( String pstCode : postalCodeAddressMap.keySet() )
             {
-                sortedPostalCodeMap.put( postalCodeAddressMap.get( pstCode ).values().size(), pstCode );
+                Map<String, Set<GeoInfoNameCode>> map = postalCodeAddressMap.get( pstCode );
+                int valueCount = 0;
+                for( String key : map.keySet() )
+                {
+                    valueCount += map.get( key ).size();
+                }
+                sortedPostalCodeMap.put( valueCount, pstCode );
             }
 
             try (FileWriter file = new FileWriter( Constants.JSON_RESULTS_FILE ))
